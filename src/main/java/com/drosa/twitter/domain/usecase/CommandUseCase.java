@@ -1,6 +1,6 @@
-package com.drosa.twitter.commandService;
+package com.drosa.twitter.domain.usecase;
 
-public interface Command {
+public interface CommandUseCase {
 
     boolean execute(String commandLine);
 

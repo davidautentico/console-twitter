@@ -1,5 +1,8 @@
-package com.drosa.twitter.domain;
+package com.drosa.twitter.domain.entity;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -8,13 +11,21 @@ import java.util.Objects;
  */
 public class User {
     private final String name;
-    private final Timeline timeLine;
-    private final FollowedList followedList;
+    private final List<Message> timeLine;
+    private final HashSet<User> followedList;
+
+    public List<Message> getTimeLine() {
+        return timeLine;
+    }
+
+    public HashSet<User> getFollowedList() {
+        return followedList;
+    }
 
     public User(String name) {
         this.name = name;
-        this.timeLine = new Timeline();
-        this.followedList = new FollowedList();
+        this.timeLine = new ArrayList<>();
+        this.followedList = new HashSet<>();
     }
 
     public String getName() {
@@ -34,11 +45,12 @@ public class User {
         return Objects.hash(name);
     }
 
-    public Timeline getTimeLine() {
-        return timeLine;
+
+    public void addMessage(Message message){
+        timeLine.add(message);
     }
 
-    public FollowedList getFollowedList() {
-        return followedList;
+    public boolean addFollowed(User user){
+        return followedList.add(user);
     }
 }

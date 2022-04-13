@@ -1,11 +1,9 @@
-package com.drosa.twitter.commandService;
+package com.drosa.twitter.domain.usecase;
 
-import com.drosa.twitter.domain.FollowedList;
-import com.drosa.twitter.domain.Message;
-import com.drosa.twitter.domain.Timeline;
-import com.drosa.twitter.domain.User;
-import com.drosa.twitter.repository.UserRepository;
-import com.drosa.twitter.util.MessagePrinter;
+import com.drosa.twitter.domain.entity.Message;
+import com.drosa.twitter.domain.entity.User;
+import com.drosa.twitter.domain.repository.UserRepository;
+import com.drosa.twitter.domain.service.printer.MessagePrinter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,13 +21,16 @@ import java.util.regex.Pattern;
  * sigue a otro, de esta forma la lectura sería inmediata. Para esto se necesitaría
  * mantener un repositorio-caché para cada wall de usuario
  */
-public class WallCommand implements Command {
+public class WallCommandUseCase implements CommandUseCase {
     private static final Pattern REGEX = Pattern.compile("^(\\S+) wall$");
 
     private final UserRepository userRepository;
 
-    public WallCommand(UserRepository userRepository) {
+    private final MessagePrinter messagePrinter;
+
+    public WallCommandUseCase(UserRepository userRepository, MessagePrinter messagePrinter) {
         this.userRepository = userRepository;
+        this.messagePrinter = messagePrinter;
     }
 
     public boolean execute(String commandLine) {
@@ -38,22 +39,20 @@ public class WallCommand implements Command {
 
         String userName = matcher.group(1);
         User user = userRepository.getUserOrAdd(userName);
-        FollowedList followedList = user.getFollowedList();
 
         final List<User> usersToWallList = new ArrayList<>();
         usersToWallList.add(user);
-        usersToWallList.addAll(followedList.getUserList());
+        usersToWallList.addAll(user.getFollowedList());
 
         final List<Message> wall = new ArrayList<>();
         usersToWallList.forEach(userInWall -> {
-            Timeline timeline = userInWall.getTimeLine();
-            List<Message> messageList = timeline.getMessages();
+            List<Message> messageList = userInWall.getTimeLine();
             wall.addAll(messageList);
         });
 
         wall.sort(Comparator.comparing(Message::getCreatedAt).reversed());
 
-        wall.forEach(MessagePrinter::printMessageForWall);
+        wall.forEach(messagePrinter::printMessageForWall);
 
         return true;
     }

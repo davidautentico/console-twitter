@@ -1,4 +1,4 @@
-package com.drosa.twitter.commandService;
+package com.drosa.twitter.application;
 
 public class InvalidCommandException extends Exception {
 }

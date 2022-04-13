@@ -1,4 +1,4 @@
-package com.drosa.twitter.util;
+package com.drosa.twitter.infraestructure.printer;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;

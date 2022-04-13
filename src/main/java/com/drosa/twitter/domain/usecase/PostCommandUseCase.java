@@ -1,9 +1,8 @@
-package com.drosa.twitter.commandService;
+package com.drosa.twitter.domain.usecase;
 
-import com.drosa.twitter.domain.Message;
-import com.drosa.twitter.domain.Timeline;
-import com.drosa.twitter.domain.User;
-import com.drosa.twitter.repository.UserRepository;
+import com.drosa.twitter.domain.entity.Message;
+import com.drosa.twitter.domain.entity.User;
+import com.drosa.twitter.domain.repository.UserRepository;
 
 import java.time.Instant;
 import java.util.regex.Matcher;
@@ -12,15 +11,20 @@ import java.util.regex.Pattern;
 /**
  * Agrega al repositorio del usuario su mensaje
  */
-public class PostCommand implements Command {
+public class PostCommandUseCase implements CommandUseCase {
     private static final Pattern REGEX = Pattern.compile("^(\\S+) -> (.+)$");
 
     private final UserRepository userRepository;
 
-    public PostCommand(UserRepository userMessageRepository) {
-        this.userRepository = userMessageRepository;
+    public PostCommandUseCase(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
+    /**
+     * Extrae del commandline el usuario y el mensaje y lo agrega
+     * @param commandLine
+     * @return
+     */
     public boolean execute(String commandLine) {
         Matcher matcher = REGEX.matcher(commandLine);
         matcher.find();
@@ -30,9 +34,7 @@ public class PostCommand implements Command {
 
         User user = userRepository.getUserOrAdd(userName);
         Message message = new Message(user, messageStr, Instant.now());
-
-        Timeline timeline = user.getTimeLine();
-        timeline.addMessage(message);
+        user.addMessage(message);
 
         return true;
     }

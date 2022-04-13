@@ -1,21 +1,25 @@
-package com.drosa.twitter.commandService;
+package com.drosa.twitter.domain.usecase;
 
-import com.drosa.twitter.domain.FollowedList;
-import com.drosa.twitter.domain.User;
-import com.drosa.twitter.repository.UserRepository;
+import com.drosa.twitter.domain.entity.User;
+import com.drosa.twitter.domain.repository.UserRepository;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FollowCommand implements Command {
+public class FollowCommandUseCase implements CommandUseCase {
     private static final Pattern REGEX = Pattern.compile("^(\\S+) follows (\\S+)$");
 
     private final UserRepository userRepository;
 
-    public FollowCommand(UserRepository userRepository) {
+    public FollowCommandUseCase(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Necesita parsear y extraer el usuario y usuario a seguir
+     * @param commandLine
+     * @return
+     */
     public boolean execute(String commandLine) {
         Matcher matcher = REGEX.matcher(commandLine);
         matcher.find();
@@ -24,9 +28,7 @@ public class FollowCommand implements Command {
 
         User user = userRepository.getUserOrAdd(userName);
         User userToFollow = userRepository.getUserOrAdd(userNameToFollow);
-
-        FollowedList followedList = user.getFollowedList();
-        followedList.addUserToList(userToFollow);
+        user.addFollowed(userToFollow);
 
         return true;
     }

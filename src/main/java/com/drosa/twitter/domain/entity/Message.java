@@ -1,4 +1,4 @@
-package com.drosa.twitter.domain;
+package com.drosa.twitter.domain.entity;
 
 import java.time.Instant;
 

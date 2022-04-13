@@ -1,7 +1,12 @@
 package com.drosa.twitter;
 
-import com.drosa.twitter.domain.User;
-import com.drosa.twitter.repository.UserRepository;
+import com.drosa.twitter.application.CommandApplication;
+import com.drosa.twitter.domain.entity.User;
+import com.drosa.twitter.domain.repository.UserRepository;
+import com.drosa.twitter.domain.service.printer.MessagePrinter;
+import com.drosa.twitter.infraestructure.printer.MessagePrinterImpl;
+import com.drosa.twitter.infraestructure.printer.TimeFormatter;
+import com.drosa.twitter.infraestructure.repository.UserRepositoryImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -29,52 +34,51 @@ public class ServerIT {
     private final String CHARLIE_FOLLOWS_BOB = "Charlie follows Bob";
     private final String CHARLIE_WALL = "Charlie wall";
 
-    private Server server;
+    private CommandApplication commandApplication;
     private UserRepository userRepository;
+    private MessagePrinter messagePrinter;
 
     @BeforeAll
     public void setup() throws NoSuchFieldException, IllegalAccessException {
-
-        server = new Server();
-        Field privateField = Server.class.getDeclaredField("userRepository");
-        privateField.setAccessible(true);
-        userRepository = (UserRepository) privateField.get(server);
+        userRepository = UserRepositoryImpl.getInstance();
+        messagePrinter = new MessagePrinterImpl(new TimeFormatter());
+        commandApplication = new CommandApplication(userRepository, messagePrinter );
 
         System.out.println("*** Server setup ***");
-        System.out.println("userRepository size <0" + userRepository.getSize() + ">");
+        System.out.println("userRepositoryImpl size <0" + userRepository.getSize() + ">");
     }
 
     @Test
     void whenRunningPostAndFollows_shouldExistsExpectedItems() {
-        server.executeCommand(ALICE_POST);
+        commandApplication.execute(ALICE_POST);
 
         assertEquals(1, userRepository.getSize());
 
         User userAlice = userRepository.getUserOrAdd(ALICE);
 
-        assertEquals(1, userAlice.getTimeLine().getMessages().size());
+        assertEquals(1, userAlice.getTimeLine().size());
 
-        server.executeCommand(BOB_POST_1);
-        server.executeCommand(BOB_POST_2);
+        commandApplication.execute(BOB_POST_1);
+        commandApplication.execute(BOB_POST_2);
 
         assertEquals(2, userRepository.getSize());
 
         User userBob = userRepository.getUserOrAdd(BOB);
 
-        assertEquals(2, userBob.getTimeLine().getMessages().size());
+        assertEquals(2, userBob.getTimeLine().size());
 
-        server.executeCommand(CHARLIE_POST);
+        commandApplication.execute(CHARLIE_POST);
 
         assertEquals(3, userRepository.getSize());
 
         User userCharlie = userRepository.getUserOrAdd(CHARLIE);
 
-        assertEquals(1, userCharlie.getTimeLine().getMessages().size());
+        assertEquals(1, userCharlie.getTimeLine().size());
 
-        server.executeCommand(CHARLIE_FOLLOWS_ALICE);
-        server.executeCommand(CHARLIE_FOLLOWS_BOB);
+        commandApplication.execute(CHARLIE_FOLLOWS_ALICE);
+        commandApplication.execute(CHARLIE_FOLLOWS_BOB);
 
-        assertEquals(2, userCharlie.getFollowedList().getUserList().size());
+        assertEquals(2, userCharlie.getFollowedList().size());
     }
 
 }

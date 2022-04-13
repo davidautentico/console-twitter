@@ -1,6 +1,7 @@
-package com.drosa.twitter.repository;
+package com.drosa.twitter.infraestructure.repository;
 
-import com.drosa.twitter.domain.User;
+import com.drosa.twitter.domain.entity.User;
+import com.drosa.twitter.domain.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,18 +10,18 @@ import java.util.Optional;
 /**
  * Estructura caché que almacena los usuarios del sistema
  */
-public class UserRepository {
+public class UserRepositoryImpl implements UserRepository {
     private final Map<String, User> users;
 
-    private static UserRepository _instance = null;
+    private static UserRepositoryImpl _instance = null;
 
-    protected UserRepository() {
+    protected UserRepositoryImpl() {
         users = new HashMap();
     }
 
-    public static UserRepository getInstance() {
+    public static UserRepositoryImpl getInstance() {
         if (_instance == null) {
-            _instance = new UserRepository();
+            _instance = new UserRepositoryImpl();
         }
         return _instance;
     }
