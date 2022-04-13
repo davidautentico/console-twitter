@@ -1,7 +1,9 @@
+
 ConsoleTwitter 
 ========================
 
-Implement a console-based social networking application (similar to Twitter) satisfying the scenarios below.
+* Implement a console-based social networking application (similar to Twitter) satisfying the scenarios below.
+* Hexagonal architecture
 
 <h2>Scenarios</h2>
 
